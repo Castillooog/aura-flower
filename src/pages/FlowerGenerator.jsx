@@ -261,6 +261,9 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
         }
       }
 
+      // Debug: log the raw response shape (helps diagnose why collectStrings may miss content)
+      console.debug("Raw assistant response:", data);
+
       // Robust text extraction: walk the response object and collect any string fragments
       function collectStrings(value) {
         const out = [];
