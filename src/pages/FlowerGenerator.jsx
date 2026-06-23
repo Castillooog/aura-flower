@@ -241,10 +241,41 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
         }),
       });
 
-      const data = await response.json();
-      const raw = data.content?.map((i) => i.text || "").join("") || "";
+      if (!response.ok) {
+        const txt = await response.text();
+        throw new Error(`API error: ${response.status} ${response.statusText} - ${txt.slice(0,200)}`);
+      }
+
+      const contentType = response.headers.get("content-type") || "";
+      let data;
+      if (contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        // Try to parse non-json response safely
+        const txt = await response.text();
+        try {
+          data = JSON.parse(txt);
+        } catch (err) {
+          console.error("API returned non-JSON response:", txt);
+          throw new Error("La respuesta del servicio no es JSON válido.");
+        }
+      }
+
+      const raw = data?.content?.map((i) => i.text || "").join("") || "";
       const clean = raw.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(clean);
+      if (!clean) {
+        console.error("Empty or invalid assistant output:", raw, data);
+        throw new Error("Respuesta vacía del asistente.");
+      }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(clean);
+      } catch (err) {
+        console.error("Failed to parse assistant JSON output:", clean, err);
+        throw new Error("No se pudo parsear la respuesta JSON del asistente.");
+      }
+
       setResult({ ...parsed, color: selectedColor });
       setStage("reveal");
     } catch (e) {
