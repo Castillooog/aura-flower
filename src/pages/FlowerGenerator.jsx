@@ -246,19 +246,15 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
         throw new Error(`API error: ${response.status} ${response.statusText} - ${txt.slice(0,200)}`);
       }
 
-      const contentType = response.headers.get("content-type") || "";
+      // Always read raw text first to preserve any noisy wrapper/streaming
+      const txt = await response.text();
+      console.log("Raw response text:", txt.slice ? txt.slice(0, 2000) : txt);
       let data;
-      if (contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        // Try to parse non-json response safely
-        const txt = await response.text();
-        try {
-          data = JSON.parse(txt);
-        } catch (err) {
-          console.error("API returned non-JSON response:", txt, err);
-          throw new Error("La respuesta del servicio no es JSON válido.", { cause: err });
-        }
+      try {
+        data = JSON.parse(txt);
+      } catch (err) {
+        // Not valid full JSON — keep the raw text for later extraction
+        data = txt;
       }
 
       // Debug: log the raw response shape (helps diagnose why collectStrings may miss content)
