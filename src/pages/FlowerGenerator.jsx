@@ -287,18 +287,47 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
       }
 
       const raw = collectStrings(data?.content) || collectStrings(data) || "";
+      // Remove fenced code blocks and trim
       const clean = raw.replace(/```json|```/g, "").trim();
       if (!clean) {
         console.error("Empty or invalid assistant output:", raw, data);
         throw new Error("Respuesta vacía del asistente.");
       }
 
+      // Try to parse JSON defensively. If it fails, try to extract a balanced
+      // JSON object from the text (handles prefixes like "text " or other noise).
+      function extractBalancedJson(text) {
+        const start = text.indexOf("{");
+        if (start === -1) return null;
+        let depth = 0;
+        for (let i = start; i < text.length; i++) {
+          const ch = text[i];
+          if (ch === "{") depth++;
+          else if (ch === "}") {
+            depth--;
+            if (depth === 0) return text.slice(start, i + 1);
+          }
+        }
+        return null;
+      }
+
       let parsed;
       try {
         parsed = JSON.parse(clean);
       } catch (err) {
-        console.error("Failed to parse assistant JSON output:", clean, err);
-        throw new Error("No se pudo parsear la respuesta JSON del asistente.", { cause: err });
+        console.warn("Primary JSON.parse failed, attempting extraction from assistant text.", err);
+        const extracted = extractBalancedJson(clean) || extractBalancedJson(raw) || null;
+        if (extracted) {
+          try {
+            parsed = JSON.parse(extracted);
+          } catch (err2) {
+            console.error("Extraction succeeded but JSON.parse still failed:", extracted, err2);
+            throw new Error("No se pudo parsear la respuesta JSON del asistente.", { cause: err2 });
+          }
+        } else {
+          console.error("Failed to parse assistant JSON output and no JSON substring found:", clean, raw, err);
+          throw new Error("No se pudo parsear la respuesta JSON del asistente.", { cause: err });
+        }
       }
 
       setResult({ ...parsed, color: selectedColor });
