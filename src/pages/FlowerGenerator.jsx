@@ -256,8 +256,8 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
         try {
           data = JSON.parse(txt);
         } catch (err) {
-          console.error("API returned non-JSON response:", txt);
-          throw new Error("La respuesta del servicio no es JSON válido.");
+          console.error("API returned non-JSON response:", txt, err);
+          throw new Error("La respuesta del servicio no es JSON válido.", { cause: err });
         }
       }
 
@@ -273,7 +273,7 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
         parsed = JSON.parse(clean);
       } catch (err) {
         console.error("Failed to parse assistant JSON output:", clean, err);
-        throw new Error("No se pudo parsear la respuesta JSON del asistente.");
+        throw new Error("No se pudo parsear la respuesta JSON del asistente.", { cause: err });
       }
 
       setResult({ ...parsed, color: selectedColor });
