@@ -252,7 +252,7 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
       let data;
       try {
         data = JSON.parse(txt);
-      } catch (err) {
+      } catch {
         // Not valid full JSON — keep the raw text for later extraction
         data = txt;
       }
