@@ -261,7 +261,32 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
         }
       }
 
-      const raw = data?.content?.map((i) => i.text || "").join("") || "";
+      // Robust text extraction: walk the response object and collect any string fragments
+      function collectStrings(value) {
+        const out = [];
+        const seen = new WeakSet();
+        function walk(v) {
+          if (v == null) return;
+          if (typeof v === "string") {
+            out.push(v);
+            return;
+          }
+          if (typeof v === "number" || typeof v === "boolean") return;
+          if (Array.isArray(v)) {
+            for (const item of v) walk(item);
+            return;
+          }
+          if (typeof v === "object") {
+            if (seen.has(v)) return;
+            seen.add(v);
+            for (const key of Object.keys(v)) walk(v[key]);
+          }
+        }
+        walk(value);
+        return out.join(" ");
+      }
+
+      const raw = collectStrings(data?.content) || collectStrings(data) || "";
       const clean = raw.replace(/```json|```/g, "").trim();
       if (!clean) {
         console.error("Empty or invalid assistant output:", raw, data);
