@@ -317,9 +317,12 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
       } catch (err) {
         console.warn("Primary JSON.parse failed, attempting extraction from assistant text.", err);
         const extracted = extractBalancedJson(clean) || extractBalancedJson(raw) || null;
-        if (extracted) {
+        // Fallback: simple regex to capture the first {...} block if present
+        const regexMatch = (!extracted) ? (clean.match(/{[\s\S]*}/) || raw.match(/{[\s\S]*}/)) : null;
+        const finalExtract = extracted || (regexMatch ? regexMatch[0] : null);
+        if (finalExtract) {
           try {
-            parsed = JSON.parse(extracted);
+            parsed = JSON.parse(finalExtract);
           } catch (err2) {
             console.error("Extraction succeeded but JSON.parse still failed:", extracted, err2);
             throw new Error("No se pudo parsear la respuesta JSON del asistente.", { cause: err2 });
