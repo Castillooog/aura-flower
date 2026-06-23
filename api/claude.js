@@ -18,7 +18,7 @@ export default async function handler(req, res) {
         try {
           const parsed = data ? JSON.parse(data) : {};
           resolve(parsed);
-        } catch (e) {
+        } catch {
           // If parsing fails, resolve with raw text to allow downstream handling
           resolve({ __raw: data });
         }
@@ -30,7 +30,6 @@ export default async function handler(req, res) {
   try {
     const body = await parseRequestBody(req);
     const { messages, max_tokens } = body.__raw ? {} : body;
-    const rawMessages = messages || (body.__raw ? undefined : undefined);
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
