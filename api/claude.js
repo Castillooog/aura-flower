@@ -23,7 +23,26 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || "";
+
+    // Extract textual content robustly from different provider shapes
+    const rawContent = data?.choices?.[0]?.message?.content;
+    let text = "";
+
+    if (typeof rawContent === "string") {
+      text = rawContent;
+    } else if (Array.isArray(rawContent)) {
+      text = rawContent
+        .map((p) => {
+          if (typeof p === "string") return p;
+          if (typeof p === "object") return p.text || (p.content && (typeof p.content === "string" ? p.content : JSON.stringify(p.content))) || "";
+          return "";
+        })
+        .join("");
+    } else if (rawContent && typeof rawContent === "object") {
+      text = rawContent.text || (rawContent.content && (typeof rawContent.content === "string" ? rawContent.content : JSON.stringify(rawContent.content))) || JSON.stringify(rawContent);
+    }
+
+    text = typeof text === "string" ? text : JSON.stringify(text);
     res.json({ content: [{ type: "text", text }] });
   } catch (err) {
     console.error(err);
