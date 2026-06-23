@@ -248,7 +248,6 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
 
       // Always read raw text first to preserve any noisy wrapper/streaming
       const txt = await response.text();
-      console.log("Raw response text:", txt.slice ? txt.slice(0, 2000) : txt);
       let data;
       try {
         data = JSON.parse(txt);
@@ -257,8 +256,7 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
         data = txt;
       }
 
-      // Debug: log the raw response shape (helps diagnose why collectStrings may miss content)
-      console.log("Raw assistant response:", data);
+      // (debug logs removed)
 
       // Robust text extraction: walk the response object and collect any string fragments
       function collectStrings(value) {
