@@ -6,8 +6,31 @@ export default async function handler(req, res) {
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
   if (!GROQ_API_KEY) return res.status(500).json({ error: "GROQ_API_KEY no configurada" });
 
+  // Helper to safely read raw body and parse JSON when Vercel doesn't provide req.body
+  async function parseRequestBody(req) {
+    // If the platform already parsed the body, return it
+    if (req.body && Object.keys(req.body).length > 0) return req.body;
+    // Otherwise read the incoming stream
+    return await new Promise((resolve) => {
+      let data = "";
+      req.on("data", (chunk) => { data += chunk; });
+      req.on("end", () => {
+        try {
+          const parsed = data ? JSON.parse(data) : {};
+          resolve(parsed);
+        } catch (e) {
+          // If parsing fails, resolve with raw text to allow downstream handling
+          resolve({ __raw: data });
+        }
+      });
+      req.on("error", () => resolve({}));
+    });
+  }
+
   try {
-    const { messages, max_tokens } = req.body;
+    const body = await parseRequestBody(req);
+    const { messages, max_tokens } = body.__raw ? {} : body;
+    const rawMessages = messages || (body.__raw ? undefined : undefined);
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
