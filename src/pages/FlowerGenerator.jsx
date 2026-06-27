@@ -343,14 +343,16 @@ Responde SOLO con un objeto JSON válido, sin comillas de código, sin texto ext
 
               <button onClick={handleSubmit}
                 style={{
-                  width: "100%", padding: "14px",
-                  borderRadius: "9999px",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                  background: "linear-gradient(135deg, #7b5455 0%, #7f4b82 100%)",
-                  color: "#fff", fontFamily: "'Inter', sans-serif",
-                  fontWeight: 600, fontSize: "15px", letterSpacing: "0.02em",
-                  boxShadow: "0 4px 24px rgba(127,75,130,0.35)",
-                  border: "none", cursor: "pointer",
+                    width: "100%", padding: "14px",
+                    borderRadius: "9999px",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                    background: "linear-gradient(135deg, #7b5455 0%, #7f4b82 100%)",
+                    color: "#fff", fontFamily: "'Inter', sans-serif",
+                    fontWeight: 600, fontSize: "15px", letterSpacing: "0.02em",
+                    boxShadow: "0 4px 24px rgba(127,75,130,0.35)",
+                    border: "none", cursor: "pointer",
+                    maxHeight: "260px",
+                    overflowY: "auto",
                 }}>
                 Ver mi Sorpresa
                 <IconSparkle />
