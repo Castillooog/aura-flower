@@ -3,10 +3,20 @@ import "@fontsource/playfair-display/600.css";
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
+import { useState } from "react";
 import PetalRain from "./components/PetalRain";
 import FlowerGenerator from "./pages/FlowerGenerator";
+import LoveStory from "./pages/LoveStory";
+
+const NAV_ITEMS = [
+  { label: "Nuestro Jardín",    section: "jardin" },
+  { label: "Historias de Amor", section: "historias" },
+  { label: "Guía de Regalos",   section: "jardin" }, // placeholder
+];
 
 export default function App() {
+  const [section, setSection] = useState("jardin");
+
   return (
     <div
       style={{
@@ -30,31 +40,42 @@ export default function App() {
           padding: "20px 40px",
         }}
       >
+        {/* Logo — vuelve al inicio */}
         <span
+          onClick={() => setSection("jardin")}
           style={{
             fontFamily: "'Playfair Display', serif",
             fontWeight: 700,
             fontSize: "22px",
             color: "#7b5455",
             fontStyle: "italic",
+            cursor: "pointer",
+            userSelect: "none",
           }}
         >
           Aura Flowers
         </span>
+
         <nav style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-          {["Nuestro Jardín", "Historias de Amor", "Guía de Regalos"].map((item) => (
+          {NAV_ITEMS.map((item) => (
             <a
-              key={item}
+              key={item.label}
               href="#"
+              onClick={(e) => { e.preventDefault(); setSection(item.section); }}
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: "14px",
                 color: "#7b5455",
                 textDecoration: "none",
-                fontWeight: 500,
+                fontWeight: section === item.section ? 600 : 500,
+                borderBottom: section === item.section && item.section === "historias"
+                  ? "2px solid #F4A0B0"
+                  : "2px solid transparent",
+                paddingBottom: "2px",
+                transition: "all 0.2s",
               }}
             >
-              {item}
+              {item.label}
             </a>
           ))}
           <button
@@ -77,7 +98,8 @@ export default function App() {
 
       {/* Main content */}
       <main style={{ position: "relative", zIndex: 10 }}>
-        <FlowerGenerator />
+        {section === "jardin"    && <FlowerGenerator />}
+        {section === "historias" && <LoveStory />}
       </main>
 
       {/* Footer */}

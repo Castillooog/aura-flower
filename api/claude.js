@@ -1,3 +1,4 @@
+import "dotenv/config";
 import process from "process";
 
 export default async function handler(req, res) {
