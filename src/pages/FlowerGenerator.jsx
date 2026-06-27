@@ -58,6 +58,7 @@ function IconRefresh() {
 
 function ColorSelect({ value, onChange }) {
   const [open, setOpen] = useState(false);
+  const [openUp, setOpenUp] = useState(false);
   const ref = useRef(null);
   const selected = COLOR_OPTIONS.find((c) => c.value === value);
 
@@ -69,9 +70,18 @@ function ColorSelect({ value, onChange }) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  function handleToggle() {
+    if (!open && ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setOpenUp(spaceBelow < 240);
+    }
+    setOpen(o => !o);
+  }
+
   return (
     <div ref={ref} style={{ position: "relative" }}>
-      <button type="button" onClick={() => setOpen((o) => !o)}
+      <button type="button" onClick={handleToggle}
         style={{
           width: "100%", display: "flex", alignItems: "center", gap: "10px",
           padding: "12px 14px", borderRadius: "12px",
@@ -99,11 +109,14 @@ function ColorSelect({ value, onChange }) {
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.15 }}
             style={{
-              position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
+              position: "absolute",
+              top: openUp ? "auto" : "calc(100% + 6px)",
+              bottom: openUp ? "calc(100% + 6px)" : "auto",
+              left: 0, right: 0,
               background: "rgba(255,255,255,0.96)", backdropFilter: "blur(16px)",
               borderRadius: "14px",
               boxShadow: "0 8px 32px rgba(244,194,194,0.25), 0 2px 8px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.8)",
-              zIndex: 50, overflow: "hidden", padding: "6px",
+              zIndex: 9999, maxHeight: "220px", overflowY: "auto", padding: "6px",
             }}>
             {COLOR_OPTIONS.map((c) => (
               <button key={c.value} type="button"
