@@ -338,7 +338,7 @@ function Field({ label, ...props }) {
 // ── Person card ───────────────────────────────────────────────────────────────
 function PersonCard({ number, data, onChange, accentColor }) {
   return (
-    <div style={{ flex:1, minWidth:"240px", borderRadius:"20px", padding:"24px", alignSelf:"stretch",
+    <div style={{ flex:1, minWidth:"min(240px, 100%)", borderRadius:"20px", padding:"24px", alignSelf:"stretch",
       background:"rgba(255,255,255,0.6)", backdropFilter:"blur(12px)",
       boxShadow:"0 4px 24px rgba(244,194,194,0.15), inset 0 0 0 1px rgba(255,255,255,0.7)" }}>
       <div style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom:"20px" }}>
@@ -499,12 +499,15 @@ Responde SOLO con un objeto JSON válido, sin texto extra, sin comillas de códi
             exit={{ opacity:0, y:-20 }} transition={{ duration:0.5 }}>
 
             {/* Two person cards */}
-            <div style={{ display:"flex", gap:"16px", flexWrap:"wrap", marginBottom:"24px", alignItems:"flex-start" }}>
-              <PersonCard number={1} data={p1} onChange={setP1}
-                accentColor={c1?.hex || "#F4A0B0"} />
+            <div style={{ display:"flex", flexDirection:"column", gap:"12px", marginBottom:"24px" }}>
+              <div style={{ display:"flex", gap:"16px", alignItems:"flex-start", flexWrap:"wrap" }}>
+                <PersonCard number={1} data={p1} onChange={setP1}
+                  accentColor={c1?.hex || "#F4A0B0"} />
+                <PersonCard number={2} data={p2} onChange={setP2}
+                  accentColor={c2?.hex || "#C9A0DC"} />
+              </div>
               {/* Divider heart */}
-              <div style={{ display:"flex", alignItems:"center", justifyContent:"center",
-                minWidth:"40px", padding:"8px 0" }}>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"4px 0" }}>
                 <motion.div animate={{ scale:[1,1.2,1] }}
                   transition={{ duration:2, repeat:Infinity, ease:"easeInOut" }}>
                   <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -513,8 +516,6 @@ Responde SOLO con un objeto JSON válido, sin texto extra, sin comillas de códi
                   </svg>
                 </motion.div>
               </div>
-              <PersonCard number={2} data={p2} onChange={setP2}
-                accentColor={c2?.hex || "#C9A0DC"} />
             </div>
 
             {error && (
